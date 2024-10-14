@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/vinibgoulart/gitbook-postgresql-vectorize/utils"
+	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/utils"
 )
 
 func Vectorize() error {
