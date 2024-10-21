@@ -1,6 +1,10 @@
 package space
 
+import "time"
+
 type Space struct {
-	ID    int
-	Title string
+	ID        string
+	Title     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

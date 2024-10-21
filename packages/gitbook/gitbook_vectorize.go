@@ -5,10 +5,15 @@ import (
 	"os"
 	"strings"
 
+	"github.com/go-pg/pg"
+	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/content"
+	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/database"
+	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/page"
+	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/space"
 	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/utils"
 )
 
-func Vectorize() error {
+func Vectorize(db *pg.DB) error {
 	spaces, errSpacesGet := SpacesGet()
 
 	if errSpacesGet != nil {
@@ -30,16 +35,38 @@ func Vectorize() error {
 		}
 	}
 
-	for _, space := range items {
-		spaceContent, errSpaceContentGet := SpacesContentGet(&space.ID)
+	for _, s := range items {
+		errSpaceCreate := database.InsertOrUpdate(db, &space.Space{
+			ID:    s.ID,
+			Title: s.Title,
+		}, "id", "title = EXCLUDED.title")
+
+		if errSpaceCreate != nil {
+			fmt.Println(errSpaceCreate.Error())
+			return errSpaceCreate
+		}
+
+		c, errSpaceContentGet := SpacesContentGet(&s.ID)
 
 		if errSpaceContentGet != nil {
 			return errSpaceContentGet
 		}
 
-		for _, page := range spaceContent.Pages {
-			for _, page := range page.Pages {
-				go VectorizePages(&space.ID, &page.ID)
+		for _, page := range c.Pages {
+			for _, cp := range page.Pages {
+
+				errContentCreate := database.InsertOrUpdate(db, &content.Content{
+					ID:      cp.ID,
+					Title:   cp.Title,
+					SpaceId: s.ID,
+				}, "id", "title = EXCLUDED.title, space_id = EXCLUDED.space_id")
+
+				if errContentCreate != nil {
+					fmt.Println(errContentCreate.Error())
+					return errContentCreate
+				}
+
+				go VectorizePages(db)(&s.ID, &cp.ID)
 			}
 		}
 	}
@@ -47,21 +74,38 @@ func Vectorize() error {
 	return nil
 }
 
-func VectorizePages(spaceId *string, pageId *string) error {
-	pageContent, errPageContentGet := SpacesContentPageGet(spaceId, pageId)
+func VectorizePages(db *pg.DB) func(spaceId *string, contentPageId *string) error {
+	return func(spaceId *string, contentPageId *string) error {
+		p, errPageContentGet := SpacesContentPageGet(spaceId, contentPageId)
 
-	if errPageContentGet != nil {
-		fmt.Println(errPageContentGet.Error())
-		return errPageContentGet
-	}
-
-	for _, node := range pageContent.Document.Nodes {
-		text := utils.RecursiveCatchField("text", node)
-
-		if textStr, ok := text.(string); ok && textStr != "" {
-			fmt.Println(text)
+		if errPageContentGet != nil {
+			fmt.Println(errPageContentGet.Error())
+			return errPageContentGet
 		}
-	}
 
-	return nil
+		var text string
+
+		for _, node := range p.Document.Nodes {
+			textCurrent := utils.RecursiveCatchField("text", node)
+			if textCurrent != "" {
+				text = text + " " + textCurrent
+			}
+		}
+
+		if text != "" {
+			errPageCreate := database.InsertOrUpdate(db, &page.Page{
+				ID:        p.ID,
+				Text:      text,
+				SpaceId:   *spaceId,
+				ContentId: *contentPageId,
+			}, "id", "text = EXCLUDED.text, space_id = EXCLUDED.space_id, content_id = EXCLUDED.content_id")
+
+			if errPageCreate != nil {
+				fmt.Println(errPageCreate.Error())
+				return errPageCreate
+			}
+		}
+
+		return nil
+	}
 }

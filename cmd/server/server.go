@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"sync"
@@ -24,13 +25,14 @@ func main() {
 
 	err := database.CreateSchemaDatabase(db)
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		return
 	}
 
 	var waitGroup sync.WaitGroup
 
 	waitGroup.Add(1)
-	go synchronizer.Init(ctx, &waitGroup)
+	go synchronizer.Init(db)(ctx, &waitGroup)
 
 	closeChannel := make(chan os.Signal, 1)
 	signal.Notify(closeChannel, syscall.SIGINT, syscall.SIGTERM)

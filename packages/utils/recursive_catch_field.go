@@ -1,8 +1,10 @@
 package utils
 
-func RecursiveCatchField(field string, data map[string]interface{}) interface{} {
+func RecursiveCatchField(field string, data map[string]interface{}) string {
 	if data[field] != nil {
-		return data[field]
+		if str, ok := data[field].(string); ok {
+			return str
+		}
 	}
 
 	for _, value := range data {
@@ -12,7 +14,7 @@ func RecursiveCatchField(field string, data map[string]interface{}) interface{} 
 				for _, v := range value {
 					if nestedMap, ok := v.(map[string]interface{}); ok {
 						result := RecursiveCatchField(field, nestedMap)
-						if result != nil {
+						if result != "" {
 							return result
 						}
 					}
@@ -21,5 +23,5 @@ func RecursiveCatchField(field string, data map[string]interface{}) interface{} 
 		}
 	}
 
-	return nil
+	return ""
 }

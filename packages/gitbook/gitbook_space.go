@@ -17,12 +17,14 @@ type GitbookSpaceItems struct {
 }
 
 type GitbookSpaceContent struct {
+	ID    string                     `json:"id"`
 	Pages []GitbookSpaceContentPages `json:"pages"`
 }
 
 type GitbookSpaceContentPages struct {
 	Pages []struct {
-		ID string `json:"id"`
+		ID    string `json:"id"`
+		Title string `json:"title"`
 	} `json:"pages"`
 }
 
