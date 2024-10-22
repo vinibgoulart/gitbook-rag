@@ -11,7 +11,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/uptrace/bun"
-	page "github.com/vinibgoulart/gitbook-llm/packages/page/handler"
+	page "github.com/vinibgoulart/gitbook-rag/packages/page/handler"
 )
 
 func ServerInit(db *bun.DB) func(ctx context.Context, waitGroup *sync.WaitGroup) {

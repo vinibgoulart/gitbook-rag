@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/uptrace/bun"
-	"github.com/vinibgoulart/gitbook-llm/packages/page"
-	"github.com/vinibgoulart/gitbook-llm/packages/utils"
+	"github.com/vinibgoulart/gitbook-rag/packages/page"
+	"github.com/vinibgoulart/gitbook-rag/packages/utils"
 	"github.com/vinibgoulart/zius"
 )
 

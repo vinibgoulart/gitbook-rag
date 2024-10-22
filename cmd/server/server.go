@@ -13,8 +13,8 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
-	"github.com/vinibgoulart/gitbook-llm/packages/database"
-	synchronizer "github.com/vinibgoulart/gitbook-llm/services"
+	"github.com/vinibgoulart/gitbook-rag/packages/database"
+	synchronizer "github.com/vinibgoulart/gitbook-rag/services"
 )
 
 func main() {

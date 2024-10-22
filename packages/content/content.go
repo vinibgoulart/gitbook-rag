@@ -3,7 +3,7 @@ package content
 import (
 	"time"
 
-	"github.com/vinibgoulart/gitbook-llm/packages/space"
+	"github.com/vinibgoulart/gitbook-rag/packages/space"
 )
 
 type Content struct {

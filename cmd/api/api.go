@@ -13,7 +13,7 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
-	"github.com/vinibgoulart/gitbook-llm/http"
+	"github.com/vinibgoulart/gitbook-rag/http"
 )
 
 func main() {

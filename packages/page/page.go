@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/pgvector/pgvector-go"
-	"github.com/vinibgoulart/gitbook-llm/packages/content"
-	"github.com/vinibgoulart/gitbook-llm/packages/space"
+	"github.com/vinibgoulart/gitbook-rag/packages/content"
+	"github.com/vinibgoulart/gitbook-rag/packages/space"
 )
 
 type Page struct {

@@ -1,4 +1,4 @@
-module github.com/vinibgoulart/gitbook-llm
+module github.com/vinibgoulart/gitbook-rag
 
 go 1.22.2
 

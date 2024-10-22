@@ -1,4 +1,4 @@
-# gitbook-llm
+# gitbook-rag
 
 This project is a proof of concept to show how to use the pgvector extension to make queries in a database using the cosine similarity.
 

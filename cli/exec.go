@@ -7,7 +7,7 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/uptrace/bun"
-	"github.com/vinibgoulart/gitbook-llm/packages/page"
+	"github.com/vinibgoulart/gitbook-rag/packages/page"
 )
 
 func Exec(ctx *context.Context, db *bun.DB, waitGroup *sync.WaitGroup) {

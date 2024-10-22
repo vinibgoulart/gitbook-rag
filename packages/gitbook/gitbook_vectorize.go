@@ -8,12 +8,12 @@ import (
 
 	"github.com/pgvector/pgvector-go"
 	"github.com/uptrace/bun"
-	"github.com/vinibgoulart/gitbook-llm/packages/content"
-	"github.com/vinibgoulart/gitbook-llm/packages/database"
-	"github.com/vinibgoulart/gitbook-llm/packages/openai"
-	"github.com/vinibgoulart/gitbook-llm/packages/page"
-	"github.com/vinibgoulart/gitbook-llm/packages/space"
-	"github.com/vinibgoulart/gitbook-llm/packages/utils"
+	"github.com/vinibgoulart/gitbook-rag/packages/content"
+	"github.com/vinibgoulart/gitbook-rag/packages/database"
+	"github.com/vinibgoulart/gitbook-rag/packages/openai"
+	"github.com/vinibgoulart/gitbook-rag/packages/page"
+	"github.com/vinibgoulart/gitbook-rag/packages/space"
+	"github.com/vinibgoulart/gitbook-rag/packages/utils"
 )
 
 func Vectorize(ctx *context.Context, db *bun.DB) error {

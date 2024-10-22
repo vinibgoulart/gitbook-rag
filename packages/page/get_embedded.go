@@ -5,8 +5,8 @@ import (
 
 	"github.com/pgvector/pgvector-go"
 	"github.com/uptrace/bun"
-	"github.com/vinibgoulart/gitbook-llm/packages/openai"
-	"github.com/vinibgoulart/gitbook-llm/packages/utils"
+	"github.com/vinibgoulart/gitbook-rag/packages/openai"
+	"github.com/vinibgoulart/gitbook-rag/packages/utils"
 )
 
 func GetEmbedded(ctx *context.Context, db *bun.DB) func(query *string) (Page, error) {
