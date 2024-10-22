@@ -22,7 +22,10 @@ func Exec(ctx *context.Context, db *bun.DB, waitGroup *sync.WaitGroup) {
 		panic(aiPromptErr)
 	}
 
-	page := page.GetEmbedded(ctx, db)(&aiPrompt)
+	page, err := page.GetEmbedded(ctx, db)(&aiPrompt)
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Println(page.Text)
 }

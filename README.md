@@ -1,11 +1,22 @@
 # gitbook-llm
 
+This project is a proof of concept to show how to use the pgvector extension to make queries in a database using the cosine similarity.
+
 ## Pre-requisites
 
 - create the database in postgresql
 - run the postgresql
 - fill the environment variables in the .env file
 - have the pgvector extension installed
+
+### How to install the pgvector extension
+
+```bash
+git clone https://github.com/pgvector/pgvector.git
+cd pgvector
+make
+sudo make install
+```
 
 ## Installation
 

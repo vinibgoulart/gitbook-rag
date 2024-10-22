@@ -9,8 +9,8 @@ import (
 	"github.com/vinibgoulart/gitbook-llm/packages/utils"
 )
 
-func GetEmbedded(ctx *context.Context, db *bun.DB) func(query *string) Page {
-	return func(query *string) Page {
+func GetEmbedded(ctx *context.Context, db *bun.DB) func(query *string) (Page, error) {
+	return func(query *string) (Page, error) {
 		embed := openai.GetEmbedding(query)
 
 		var items []Page
@@ -21,9 +21,9 @@ func GetEmbedded(ctx *context.Context, db *bun.DB) func(query *string) Page {
 			Scan(*ctx)
 
 		if err != nil {
-			panic(err)
+			return Page{}, err
 		}
 
-		return items[0]
+		return items[0], nil
 	}
 }
