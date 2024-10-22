@@ -1,6 +1,8 @@
 # gitbook-rag
 
 This project is a proof of concept to show how to use the pgvector extension to make queries in a database using the cosine similarity.
+![image](https://github.com/user-attachments/assets/71373c28-2fcd-4f32-bf81-b29b725dda0d)
+![image](https://github.com/user-attachments/assets/3b146786-4bd8-4ad9-a0ea-2f87ee1fc90b)
 
 ## Pre-requisites
 
