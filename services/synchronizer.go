@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/uptrace/bun"
 	"github.com/vinibgoulart/gitbook-llm/packages/gitbook"
 )
@@ -22,7 +23,7 @@ func Init(db *bun.DB) func(context.Context, *sync.WaitGroup) {
 
 		_, errorJob := scheduler.NewJob(
 			gocron.DurationJob(
-				8*time.Second,
+				1*time.Minute,
 			),
 			gocron.NewTask(
 				func() {

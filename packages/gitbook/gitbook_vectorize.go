@@ -6,9 +6,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/pgvector/pgvector-go"
 	"github.com/uptrace/bun"
 	"github.com/vinibgoulart/gitbook-llm/packages/content"
 	"github.com/vinibgoulart/gitbook-llm/packages/database"
+	"github.com/vinibgoulart/gitbook-llm/packages/openai"
 	"github.com/vinibgoulart/gitbook-llm/packages/page"
 	"github.com/vinibgoulart/gitbook-llm/packages/space"
 	"github.com/vinibgoulart/gitbook-llm/packages/utils"
@@ -96,19 +98,21 @@ func VectorizePages(ctx *context.Context, db *bun.DB) func(spaceId *string, cont
 			if textCurrent != "" {
 				text = text + " " + textCurrent
 			}
-		}
 
-		if text != "" {
-			errPageCreate := database.InsertOrUpdate(ctx, db, &page.Page{
-				ID:        p.ID,
-				Text:      text,
-				SpaceId:   *spaceId,
-				ContentId: *contentPageId,
-			}, "id", "text = EXCLUDED.text, space_id = EXCLUDED.space_id, content_id = EXCLUDED.content_id")
+			if text != "" {
+				embed := openai.GetEmbedding(&text)
+				errPageCreate := database.InsertOrUpdate(ctx, db, &page.Page{
+					ID:        p.ID,
+					Text:      text,
+					SpaceId:   *spaceId,
+					ContentId: *contentPageId,
+					Embedding: pgvector.NewVector(utils.Float64ToFloat32(embed)),
+				}, "id", "text = EXCLUDED.text, space_id = EXCLUDED.space_id, content_id = EXCLUDED.content_id")
 
-			if errPageCreate != nil {
-				fmt.Println(errPageCreate.Error())
-				return errPageCreate
+				if errPageCreate != nil {
+					fmt.Println(errPageCreate.Error())
+					return errPageCreate
+				}
 			}
 		}
 

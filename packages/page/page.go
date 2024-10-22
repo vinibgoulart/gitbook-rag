@@ -3,6 +3,7 @@ package page
 import (
 	"time"
 
+	"github.com/pgvector/pgvector-go"
 	"github.com/vinibgoulart/gitbook-llm/packages/content"
 	"github.com/vinibgoulart/gitbook-llm/packages/space"
 )
@@ -16,4 +17,5 @@ type Page struct {
 	Content   *content.Content `bun:"rel:has-one,join:content_id=id"`
 	CreatedAt time.Time        `bun:",nullzero,notnull,default:current_timestamp"`
 	UpdatedAt time.Time        `bun:",nullzero,notnull,default:current_timestamp"`
+	Embedding pgvector.Vector  `bun:"type:vector(1536)"`
 }
