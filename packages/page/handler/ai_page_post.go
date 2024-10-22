@@ -30,12 +30,12 @@ func AiPromptPost(ctx *context.Context, db *bun.DB) func(res http.ResponseWriter
 			return
 		}
 
-		page, err := page.GetEmbedded(ctx, db)(&aiPrompt.Prompt)
+		response, err := page.GetResponseEmbeddingQuery(ctx, db)(&aiPrompt.Prompt)
 		if err != nil {
-
+			http.Error(res, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
-		res.Write([]byte(page.Text))
+		res.Write([]byte(response))
 	}
 }

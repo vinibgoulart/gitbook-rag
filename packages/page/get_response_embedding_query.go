@@ -9,8 +9,8 @@ import (
 	"github.com/vinibgoulart/gitbook-rag/packages/utils"
 )
 
-func GetEmbedded(ctx *context.Context, db *bun.DB) func(query *string) (Page, error) {
-	return func(query *string) (Page, error) {
+func GetResponseEmbeddingQuery(ctx *context.Context, db *bun.DB) func(query *string) (string, error) {
+	return func(query *string) (string, error) {
 		embed := openai.GetEmbedding(query)
 
 		var items []Page
@@ -21,9 +21,14 @@ func GetEmbedded(ctx *context.Context, db *bun.DB) func(query *string) (Page, er
 			Scan(*ctx)
 
 		if err != nil {
-			return Page{}, err
+			return "", err
 		}
 
-		return items[0], nil
+		res, err := openai.GenerateCompletion(ctx)(&items[0].Text, query)
+		if err != nil {
+			return "", err
+		}
+
+		return res, nil
 	}
 }
