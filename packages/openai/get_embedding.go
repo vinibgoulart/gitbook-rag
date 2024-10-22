@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	_ "github.com/joho/godotenv/autoload"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/shared"
 )

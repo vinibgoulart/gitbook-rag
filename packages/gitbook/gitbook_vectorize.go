@@ -42,7 +42,7 @@ func Vectorize(ctx *context.Context, db *bun.DB) error {
 		errSpaceCreate := database.InsertOrUpdate(ctx, db, &space.Space{
 			ID:    s.ID,
 			Title: s.Title,
-		}, "id", "title = EXCLUDED.title")
+		}, "id", "title = EXCLUDED.title, updated_at = NOW()")
 
 		if errSpaceCreate != nil {
 			fmt.Println(errSpaceCreate.Error())
@@ -62,7 +62,7 @@ func Vectorize(ctx *context.Context, db *bun.DB) error {
 					ID:      cp.ID,
 					Title:   cp.Title,
 					SpaceId: s.ID,
-				}, "id", "title = EXCLUDED.title, space_id = EXCLUDED.space_id")
+				}, "id", "title = EXCLUDED.title, space_id = EXCLUDED.space_id, updated_at = NOW()")
 
 				if errContentCreate != nil {
 					fmt.Println(errContentCreate.Error())
@@ -99,7 +99,7 @@ func VectorizePages(ctx *context.Context, db *bun.DB) func(spaceId *string, cont
 				text = text + " " + textCurrent
 			}
 
-			if text != "" {
+			if textCurrent != "" {
 				embed := openai.GetEmbedding(&text)
 				errPageCreate := database.InsertOrUpdate(ctx, db, &page.Page{
 					ID:        p.ID,
@@ -107,7 +107,7 @@ func VectorizePages(ctx *context.Context, db *bun.DB) func(spaceId *string, cont
 					SpaceId:   *spaceId,
 					ContentId: *contentPageId,
 					Embedding: pgvector.NewVector(utils.Float64ToFloat32(embed)),
-				}, "id", "text = EXCLUDED.text, space_id = EXCLUDED.space_id, content_id = EXCLUDED.content_id")
+				}, "id", "text = EXCLUDED.text, space_id = EXCLUDED.space_id, content_id = EXCLUDED.content_id, embedding = EXCLUDED.embedding, updated_at = NOW()")
 
 				if errPageCreate != nil {
 					fmt.Println(errPageCreate.Error())

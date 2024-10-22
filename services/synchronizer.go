@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
-	_ "github.com/joho/godotenv/autoload"
 	"github.com/uptrace/bun"
 	"github.com/vinibgoulart/gitbook-llm/packages/gitbook"
 )
