@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-co-op/gocron/v2"
 	"github.com/uptrace/bun"
-	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/gitbook"
+	"github.com/vinibgoulart/gitbook-llm/packages/gitbook"
 )
 
 func Init(db *bun.DB) func(context.Context, *sync.WaitGroup) {

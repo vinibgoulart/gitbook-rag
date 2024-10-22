@@ -7,11 +7,11 @@ import (
 	"strings"
 
 	"github.com/uptrace/bun"
-	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/content"
-	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/database"
-	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/page"
-	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/space"
-	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/utils"
+	"github.com/vinibgoulart/gitbook-llm/packages/content"
+	"github.com/vinibgoulart/gitbook-llm/packages/database"
+	"github.com/vinibgoulart/gitbook-llm/packages/page"
+	"github.com/vinibgoulart/gitbook-llm/packages/space"
+	"github.com/vinibgoulart/gitbook-llm/packages/utils"
 )
 
 func Vectorize(ctx *context.Context, db *bun.DB) error {
@@ -85,6 +85,11 @@ func VectorizePages(ctx *context.Context, db *bun.DB) func(spaceId *string, cont
 		}
 
 		var text string
+		if p.Description != "" {
+			text = p.Title + ". " + p.Description
+		} else {
+			text = p.Title + ". "
+		}
 
 		for _, node := range p.Document.Nodes {
 			textCurrent := utils.RecursiveCatchField("text", node)

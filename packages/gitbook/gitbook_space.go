@@ -29,9 +29,10 @@ type GitbookSpaceContentPages struct {
 }
 
 type GitbookSpaceContentPage struct {
-	ID       string                          `json:"id"`
-	Title    string                          `json:"title"`
-	Document GitbookSpaceContentPageDocument `json:"document"`
+	ID          string                          `json:"id"`
+	Title       string                          `json:"title"`
+	Description string                          `json:"description"`
+	Document    GitbookSpaceContentPageDocument `json:"document"`
 }
 
 type GitbookSpaceContentPageDocument struct {

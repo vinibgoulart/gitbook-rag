@@ -3,8 +3,8 @@ package page
 import (
 	"time"
 
-	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/content"
-	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/space"
+	"github.com/vinibgoulart/gitbook-llm/packages/content"
+	"github.com/vinibgoulart/gitbook-llm/packages/space"
 )
 
 type Page struct {
