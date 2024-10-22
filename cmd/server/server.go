@@ -2,14 +2,17 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 
-	"github.com/go-pg/pg"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
+	"github.com/uptrace/bun/driver/pgdriver"
 	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/database"
 	synchronizer "github.com/vinibgoulart/gitbook-postgresql-vectorize/services"
 )
@@ -17,13 +20,18 @@ import (
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	db := pg.Connect(&pg.Options{
-		User:     "postgres",
-		Database: "gitbook_postgresql_vectorize",
-	})
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
+	)
+	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
+	db := bun.NewDB(sqldb, pgdialect.New())
 	defer db.Close()
 
-	err := database.CreateSchemaDatabase(db)
+	err := database.CreateSchemaDatabase(db, ctx)
 	if err != nil {
 		fmt.Println(err.Error())
 		return

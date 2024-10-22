@@ -1,16 +1,18 @@
 package database
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/go-pg/pg"
+	"github.com/uptrace/bun"
 )
 
-func InsertOrUpdate(db *pg.DB, model interface{}, conflictColumn string, updateFields string) error {
-	_, err := db.Model(model).
-		OnConflict(fmt.Sprintf("(%s) DO UPDATE", conflictColumn)).
+func InsertOrUpdate(ctx *context.Context, db *bun.DB, model interface{}, conflictColumn string, updateFields string) error {
+	_, err := db.NewInsert().
+		Model(model).
+		On("CONFLICT (" + conflictColumn + ") DO UPDATE").
 		Set(updateFields).
-		Insert()
+		Exec(*ctx)
 
 	if err != nil {
 		return fmt.Errorf("error inserting or updating: %w", err)

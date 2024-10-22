@@ -8,12 +8,12 @@ import (
 )
 
 type Page struct {
-	ID        string
-	Text      string
+	ID        string `bun:"id,pk"`
+	Text      string `bun:"text,notnull"`
 	SpaceId   string
-	Space     *space.Space `pg:"rel:has-one"`
+	Space     *space.Space `bun:"rel:has-one,join:space_id=id"`
 	ContentId string
-	Content   *content.Content `pg:"rel:has-one"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Content   *content.Content `bun:"rel:has-one,join:content_id=id"`
+	CreatedAt time.Time        `bun:",nullzero,notnull,default:current_timestamp"`
+	UpdatedAt time.Time        `bun:",nullzero,notnull,default:current_timestamp"`
 }

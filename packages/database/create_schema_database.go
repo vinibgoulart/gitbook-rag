@@ -1,14 +1,15 @@
 package database
 
 import (
-	"github.com/go-pg/pg"
-	"github.com/go-pg/pg/orm"
+	"context"
+
+	"github.com/uptrace/bun"
 	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/content"
 	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/page"
 	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/space"
 )
 
-func CreateSchemaDatabase(db *pg.DB) error {
+func CreateSchemaDatabase(db *bun.DB, ctx context.Context) error {
 	models := []interface{}{
 		(*space.Space)(nil),
 		(*content.Content)(nil),
@@ -16,14 +17,12 @@ func CreateSchemaDatabase(db *pg.DB) error {
 	}
 
 	for _, model := range models {
-		err := db.Model(model).CreateTable(&orm.CreateTableOptions{
-			Temp:          false,
-			IfNotExists:   true,
-			FKConstraints: true,
-		})
+		_, err := db.NewCreateTable().Model(model).IfNotExists().Exec(ctx)
+
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }

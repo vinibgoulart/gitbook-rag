@@ -1,11 +1,12 @@
 package gitbook
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
 
-	"github.com/go-pg/pg"
+	"github.com/uptrace/bun"
 	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/content"
 	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/database"
 	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/page"
@@ -13,7 +14,7 @@ import (
 	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/utils"
 )
 
-func Vectorize(db *pg.DB) error {
+func Vectorize(ctx *context.Context, db *bun.DB) error {
 	spaces, errSpacesGet := SpacesGet()
 
 	if errSpacesGet != nil {
@@ -36,7 +37,7 @@ func Vectorize(db *pg.DB) error {
 	}
 
 	for _, s := range items {
-		errSpaceCreate := database.InsertOrUpdate(db, &space.Space{
+		errSpaceCreate := database.InsertOrUpdate(ctx, db, &space.Space{
 			ID:    s.ID,
 			Title: s.Title,
 		}, "id", "title = EXCLUDED.title")
@@ -55,7 +56,7 @@ func Vectorize(db *pg.DB) error {
 		for _, page := range c.Pages {
 			for _, cp := range page.Pages {
 
-				errContentCreate := database.InsertOrUpdate(db, &content.Content{
+				errContentCreate := database.InsertOrUpdate(ctx, db, &content.Content{
 					ID:      cp.ID,
 					Title:   cp.Title,
 					SpaceId: s.ID,
@@ -66,7 +67,7 @@ func Vectorize(db *pg.DB) error {
 					return errContentCreate
 				}
 
-				go VectorizePages(db)(&s.ID, &cp.ID)
+				go VectorizePages(ctx, db)(&s.ID, &cp.ID)
 			}
 		}
 	}
@@ -74,7 +75,7 @@ func Vectorize(db *pg.DB) error {
 	return nil
 }
 
-func VectorizePages(db *pg.DB) func(spaceId *string, contentPageId *string) error {
+func VectorizePages(ctx *context.Context, db *bun.DB) func(spaceId *string, contentPageId *string) error {
 	return func(spaceId *string, contentPageId *string) error {
 		p, errPageContentGet := SpacesContentPageGet(spaceId, contentPageId)
 
@@ -93,7 +94,7 @@ func VectorizePages(db *pg.DB) func(spaceId *string, contentPageId *string) erro
 		}
 
 		if text != "" {
-			errPageCreate := database.InsertOrUpdate(db, &page.Page{
+			errPageCreate := database.InsertOrUpdate(ctx, db, &page.Page{
 				ID:        p.ID,
 				Text:      text,
 				SpaceId:   *spaceId,

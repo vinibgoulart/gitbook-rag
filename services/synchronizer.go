@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
-	"github.com/go-pg/pg"
+	"github.com/uptrace/bun"
 	"github.com/vinibgoulart/gitbook-postgresql-vectorize/packages/gitbook"
 )
 
-func Init(db *pg.DB) func(context.Context, *sync.WaitGroup) {
+func Init(db *bun.DB) func(context.Context, *sync.WaitGroup) {
 	return func(ctx context.Context, waitGroup *sync.WaitGroup) {
 		defer waitGroup.Done()
 
@@ -22,11 +22,11 @@ func Init(db *pg.DB) func(context.Context, *sync.WaitGroup) {
 
 		_, errorJob := scheduler.NewJob(
 			gocron.DurationJob(
-				15*time.Second,
+				8*time.Second,
 			),
 			gocron.NewTask(
 				func() {
-					err := gitbook.Vectorize(db)
+					err := gitbook.Vectorize(&ctx, db)
 					if err != nil {
 						fmt.Println(err.Error())
 					}

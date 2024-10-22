@@ -3,8 +3,8 @@ package space
 import "time"
 
 type Space struct {
-	ID        string
-	Title     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        string    `bun:"id,pk"`
+	Title     string    `bun:"title,notnull"`
+	CreatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp"`
+	UpdatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp"`
 }
