@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
@@ -39,13 +40,15 @@ func ServerInit(db *bun.DB) func(ctx context.Context, waitGroup *sync.WaitGroup)
 			r.Post("/page", page.AiPagePost(&ctx, db))
 		})
 
+		port := fmt.Sprintf(":%s", os.Getenv("PORT"))
+
 		server := &http.Server{
-			Addr:    ":8080",
+			Addr:    port,
 			Handler: router,
 		}
 
 		go func() {
-			fmt.Println("HTTP server listening on :8080")
+			fmt.Println("HTTP server listening on", port)
 			server.ListenAndServe()
 		}()
 
