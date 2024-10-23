@@ -15,7 +15,7 @@ type AiPrompt struct {
 	Prompt string `json:"prompt"`
 }
 
-func AiPromptPost(ctx *context.Context, db *bun.DB) func(res http.ResponseWriter, req *http.Request) {
+func AiPagePost(ctx *context.Context, db *bun.DB) func(res http.ResponseWriter, req *http.Request) {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var aiPrompt AiPrompt
 

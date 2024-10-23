@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/uptrace/bun"
+	httpSession "github.com/vinibgoulart/gitbook-rag/http/session"
 	"github.com/vinibgoulart/gitbook-rag/packages/session"
 )
 
@@ -24,7 +24,7 @@ func SessionMiddleware(ctx *context.Context, db *bun.DB) func(next http.Handler)
 			var sessionId string
 
 			if err != nil || cookie.Value == "" {
-				sessionId = createNewSession(ctx, db, w)
+				sessionId = httpSession.CreateNewSession(ctx, db, w)
 			} else {
 				sessionId = cookie.Value
 				var sess session.Session
@@ -45,7 +45,7 @@ func SessionMiddleware(ctx *context.Context, db *bun.DB) func(next http.Handler)
 						}
 					}
 
-					sessionId = createNewSession(ctx, db, w)
+					sessionId = httpSession.CreateNewSession(ctx, db, w)
 				}
 			}
 
@@ -53,31 +53,4 @@ func SessionMiddleware(ctx *context.Context, db *bun.DB) func(next http.Handler)
 			next.ServeHTTP(w, r)
 		})
 	}
-}
-
-func createNewSession(ctx *context.Context, db *bun.DB, w http.ResponseWriter) string {
-	newSession := &session.Session{
-		ID:    uuid.New().String(),
-		Valid: true,
-	}
-
-	_, err := db.NewInsert().
-		Model(newSession).Exec(*ctx)
-
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return ""
-	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "sessionId",
-		Value:    newSession.ID,
-		Path:     "/",
-		MaxAge:   24 * 60 * 60, // 1 dia
-		HttpOnly: true,
-		Secure:   false,
-	})
-
-	return newSession.ID
 }
