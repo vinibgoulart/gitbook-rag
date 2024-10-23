@@ -25,6 +25,7 @@ func ServerInit(db *bun.DB) func(ctx context.Context, waitGroup *sync.WaitGroup)
 		router.Use(middleware.Logger)
 		router.Use(middleware.Recoverer)
 		router.Use(JsonContentTypeMiddleware)
+		router.Use(SessionMiddleware(&ctx, db))
 		router.Use(middleware.Timeout(30 * time.Second))
 
 		router.Get("/status", func(res http.ResponseWriter, req *http.Request) {

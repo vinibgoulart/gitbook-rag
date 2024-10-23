@@ -12,7 +12,7 @@ const (
 )
 
 type Chat struct {
-	ID        string `bun:"id,pk,autoincrement"`
+	ID        string `bun:"id,pk"`
 	Agent     string `bun:",notnull"`
 	Context   string `bun:",nullzero"`
 	SessionId string

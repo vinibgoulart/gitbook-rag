@@ -14,6 +14,7 @@ import (
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
 	"github.com/vinibgoulart/gitbook-rag/http"
+	"github.com/vinibgoulart/gitbook-rag/packages/database"
 )
 
 func main() {
@@ -29,6 +30,12 @@ func main() {
 	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
 	db := bun.NewDB(sqldb, pgdialect.New())
 	defer db.Close()
+
+	err := database.CreateSchemaDatabase(db, ctx)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 
 	var waitGroup sync.WaitGroup
 
