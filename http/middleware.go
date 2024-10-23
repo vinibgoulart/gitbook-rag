@@ -20,6 +20,11 @@ func JsonContentTypeMiddleware(next http.Handler) http.Handler {
 func SessionMiddleware(ctx *context.Context, db *bun.DB) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/logout" {
+				next.ServeHTTP(w, r)
+				return
+			}
+
 			cookie, err := r.Cookie("sessionId")
 			var sessionId string
 
