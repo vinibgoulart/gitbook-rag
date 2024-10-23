@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/uptrace/bun"
 	httpSession "github.com/vinibgoulart/gitbook-rag/http/session"
+	chat "github.com/vinibgoulart/gitbook-rag/packages/chat/handler/api"
 	page "github.com/vinibgoulart/gitbook-rag/packages/page/handler/api"
 )
 
@@ -36,9 +37,8 @@ func ServerInit(db *bun.DB) func(ctx context.Context, waitGroup *sync.WaitGroup)
 		router.Post("/logout", func(res http.ResponseWriter, req *http.Request) {
 			httpSession.RemoveSession(&ctx, db, res)
 		})
-		router.Route("/ai", func(r chi.Router) {
-			r.Post("/page", page.AiPagePost(&ctx, db))
-		})
+		router.Post("/ai/page", page.AiPagePost(&ctx, db))
+		router.Get("/chat", chat.ChatGet(&ctx, db))
 
 		port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 
