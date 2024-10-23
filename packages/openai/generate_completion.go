@@ -6,13 +6,14 @@ import (
 	"github.com/openai/openai-go"
 )
 
-func GenerateCompletion(ctx *context.Context) func(prompt *string, context *string) (string, error) {
-	return func(prompt *string, context *string) (string, error) {
+func GenerateCompletion(ctx *context.Context) func(context *string, messages ...openai.ChatCompletionMessageParamUnion) (string, error) {
+	return func(context *string, messages ...openai.ChatCompletionMessageParamUnion) (string, error) {
+		allMessages := append([]openai.ChatCompletionMessageParamUnion{
+			openai.SystemMessage(*context),
+		}, messages...)
+
 		chatCompletion, err := Client.Chat.Completions.New(*ctx, openai.ChatCompletionNewParams{
-			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
-				openai.SystemMessage(*context),
-				openai.UserMessage(*prompt),
-			}),
+			Messages:    openai.F(allMessages),
 			Model:       openai.F(openai.ChatModelGPT4o),
 			Temperature: openai.Float(0.3),
 		})

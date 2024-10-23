@@ -2,6 +2,7 @@ package page
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/uptrace/bun"
@@ -32,6 +33,7 @@ func AiPromptPost(ctx *context.Context, db *bun.DB) func(res http.ResponseWriter
 
 		response, err := page.GetResponseEmbeddingQuery(ctx, db)(&aiPrompt.Prompt)
 		if err != nil {
+			fmt.Println(err)
 			http.Error(res, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
