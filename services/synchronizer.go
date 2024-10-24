@@ -15,6 +15,8 @@ func Init(db *bun.DB) func(context.Context, *sync.WaitGroup) {
 	return func(ctx context.Context, waitGroup *sync.WaitGroup) {
 		defer waitGroup.Done()
 
+		fmt.Println("Synchronizer started")
+
 		scheduler, errScheduler := gocron.NewScheduler()
 		if errScheduler != nil {
 			panic(errScheduler)

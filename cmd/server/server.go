@@ -43,6 +43,7 @@ func main() {
 		return
 	}
 
+	fmt.Println("Server is running...")
 	var waitGroup sync.WaitGroup
 
 	waitGroup.Add(1)
