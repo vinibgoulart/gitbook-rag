@@ -33,6 +33,14 @@ sudo make install
 go mod tidy
 ```
 
+## Running with docker
+
+```bash
+docker-compose up -d
+```
+
+This command will start the postgresql and the pgadmin services.
+
 ## Running the server
 
 To sync the data from the database to the vector index you need to run the server with the following command:
