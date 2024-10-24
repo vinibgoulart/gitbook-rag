@@ -14,7 +14,8 @@ services:
     network_mode: "host"
 
   golang-api:
-    build: .
+    image: golang:1.22.2
+    working_dir: /app
     depends_on:
       - postgres
     volumes:
@@ -25,7 +26,8 @@ services:
       - 8054:8054
 
   golang-server:
-    build: .
+    image: golang:1.22.2
+    working_dir: /app
     depends_on:
       - postgres
     volumes:

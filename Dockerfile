@@ -1,30 +1,12 @@
-### Build
-FROM golang:1.22.2 as builder
+FROM golang:1.22.2
 
-WORKDIR /app-todo-list
+WORKDIR /usr/src/app
 
-ENV GOOS=linux \
-    GOARCH=amd64 
-
-COPY go.mod .
-COPY go.sum .
-
-RUN go mod download
+# pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
 
 COPY . .
+RUN go build -v -o /usr/local/bin/app ./...
 
-RUN go build ./cmd/api
-
-### Certs
-FROM alpine:latest as certs
-RUN apk --update add ca-certificates
-RUN apk add --no-cache tzdata
-
-### App
-FROM ubuntu:bionic as app
-COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=builder app-todo-list/api /api
-
-EXPOSE 8054
-
-ENTRYPOINT [ "/api" ]
+CMD ["app"]
