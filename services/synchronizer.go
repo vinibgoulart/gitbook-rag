@@ -24,7 +24,7 @@ func Init(db *bun.DB) func(context.Context, *sync.WaitGroup) {
 
 		_, errorJob := scheduler.NewJob(
 			gocron.DurationJob(
-				1*time.Minute,
+				1*time.Hour,
 			),
 			gocron.NewTask(
 				func() {

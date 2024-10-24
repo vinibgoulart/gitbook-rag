@@ -55,21 +55,39 @@ func Vectorize(ctx *context.Context, db *bun.DB) error {
 			return errSpaceContentGet
 		}
 
-		for _, page := range c.Pages {
-			for _, cp := range page.Pages {
+		var allIdsUpdate []string
+		for _, p := range c.Pages {
+			allIdsUpdate = append(allIdsUpdate, utils.RecursiveCatchFields("id", p)...)
+		}
 
-				errContentCreate := database.InsertOrUpdate(ctx, db, &content.Content{
-					ID:      cp.ID,
-					Title:   cp.Title,
-					SpaceId: s.ID,
-				}, "id", "title = EXCLUDED.title, space_id = EXCLUDED.space_id, updated_at = NOW()")
+		for _, id := range allIdsUpdate {
+			errContentCreate := database.InsertOrUpdate(ctx, db, &content.Content{
+				ID:      id,
+				SpaceId: s.ID,
+			}, "id", "space_id = EXCLUDED.space_id, updated_at = NOW()")
 
-				if errContentCreate != nil {
-					fmt.Println(errContentCreate.Error())
-					return errContentCreate
-				}
+			if errContentCreate != nil {
+				fmt.Println(errContentCreate.Error())
+				return errContentCreate
+			}
 
-				go VectorizePages(ctx, db)(&s.ID, &cp.ID)
+			allIdsUpdate = append(allIdsUpdate, id)
+
+			go VectorizePages(ctx, db)(&s.ID, &id)
+		}
+
+		var pagesNotUpdated []page.Page
+		errSelect := db.NewSelect().Model(&pagesNotUpdated).Where("space_id = ?", s.ID).Where("content_id NOT IN (?)", allIdsUpdate).Scan(*ctx)
+		if errSelect != nil {
+			fmt.Println(errSelect.Error())
+			return errSelect
+		}
+
+		for _, p := range pagesNotUpdated {
+			_, errDelete := db.NewDelete().Model(&p).Where("id = ?", p.ID).Exec(*ctx)
+			if errDelete != nil {
+				fmt.Println(errDelete.Error())
+				return errDelete
 			}
 		}
 	}
@@ -86,6 +104,10 @@ func VectorizePages(ctx *context.Context, db *bun.DB) func(spaceId *string, cont
 			return errPageContentGet
 		}
 
+		if p.Type != "document" {
+			return nil
+		}
+
 		var text string
 		if p.Description != "" {
 			text = p.Title + ". " + p.Description
@@ -93,26 +115,30 @@ func VectorizePages(ctx *context.Context, db *bun.DB) func(spaceId *string, cont
 			text = p.Title + ". "
 		}
 
+		var allTexts []string
 		for _, node := range p.Document.Nodes {
-			textCurrent := utils.RecursiveCatchField("text", node)
-			if textCurrent != "" {
-				text = text + " " + textCurrent
-			}
+			allTexts = append(allTexts, utils.RecursiveCatchFields("text", node)...)
+		}
 
-			if textCurrent != "" {
-				embed := openai.GetEmbedding(&text)
-				errPageCreate := database.InsertOrUpdate(ctx, db, &page.Page{
-					ID:        p.ID,
-					Text:      text,
-					SpaceId:   *spaceId,
-					ContentId: *contentPageId,
-					Embedding: pgvector.NewVector(utils.Float64ToFloat32(embed)),
-				}, "id", "text = EXCLUDED.text, space_id = EXCLUDED.space_id, content_id = EXCLUDED.content_id, embedding = EXCLUDED.embedding, updated_at = NOW()")
+		if len(allTexts) < 1 {
+			return nil
+		}
 
-				if errPageCreate != nil {
-					fmt.Println(errPageCreate.Error())
-					return errPageCreate
-				}
+		text = text + " " + strings.Join(allTexts, " ")
+
+		if text != "" {
+			embed := openai.GetEmbedding(&text)
+			errPageCreate := database.InsertOrUpdate(ctx, db, &page.Page{
+				ID:        p.ID,
+				Text:      text,
+				SpaceId:   *spaceId,
+				ContentId: *contentPageId,
+				Embedding: pgvector.NewVector(utils.Float64ToFloat32(embed)),
+			}, "id", "text = EXCLUDED.text, space_id = EXCLUDED.space_id, content_id = EXCLUDED.content_id, embedding = EXCLUDED.embedding, updated_at = NOW()")
+
+			if errPageCreate != nil {
+				fmt.Println(errPageCreate.Error())
+				return errPageCreate
 			}
 		}
 
