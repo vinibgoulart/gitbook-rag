@@ -1,0 +1,37 @@
+version: "3.7"
+services:
+  postgres:
+    image: pgvector/pgvector:pg14
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - 5433:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    network_mode: "host"
+
+  golang-api:
+    build: .
+    depends_on:
+      - postgres
+    volumes:
+      - ./:/app
+    command: go run cmd/api/api.go
+    network_mode: "host"
+    ports:
+      - 8054:8054
+
+  golang-server:
+    build: .
+    depends_on:
+      - postgres
+    volumes:
+      - ./:/app
+    command: go run cmd/server/server.go
+    network_mode: "host"
+
+volumes:
+  pgdata:
