@@ -11,7 +11,10 @@ services:
       - 5433:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
-    network_mode: "host"
+    expose:
+      - 5433
+    networks:
+      - pgvector
 
   golang-api:
     image: golang:1.22.2
@@ -21,9 +24,10 @@ services:
     volumes:
       - ./:/app
     command: go run cmd/api/api.go
-    network_mode: "host"
     ports:
       - 8054:8054
+    networks:
+      - pgvector
 
   golang-server:
     image: golang:1.22.2
@@ -33,7 +37,12 @@ services:
     volumes:
       - ./:/app
     command: go run cmd/server/server.go
-    network_mode: "host"
+    networks:
+      - pgvector
 
 volumes:
   pgdata:
+
+networks:
+  pgvector:
+    driver: bridge
