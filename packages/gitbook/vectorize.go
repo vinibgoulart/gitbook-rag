@@ -23,7 +23,7 @@ func Vectorize(ctx *context.Context, db *bun.DB) error {
 		return errSpacesGet
 	}
 
-	var items []GitbookSpaceItems
+	var items []SpaceItems
 
 	if os.Getenv("GITBOOK_SPACES_IDS") != "" {
 		spacesIds := os.Getenv("GITBOOK_SPACES_IDS")
@@ -49,7 +49,7 @@ func Vectorize(ctx *context.Context, db *bun.DB) error {
 			return errSpaceCreate
 		}
 
-		c, errSpaceContentGet := SpacesContentGet(&s.ID)
+		c, errSpaceContentGet := ContentGet(&s.ID)
 
 		if errSpaceContentGet != nil {
 			return errSpaceContentGet
