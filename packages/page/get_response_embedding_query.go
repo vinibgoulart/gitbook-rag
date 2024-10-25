@@ -3,6 +3,7 @@ package page
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/google/uuid"
 	"github.com/openai/openai-go"
@@ -17,20 +18,6 @@ import (
 func GetResponseEmbeddingQuery(ctx *context.Context, db *bun.DB) func(query *string) (string, error) {
 	return func(query *string) (string, error) {
 		embed := openaiL.GetEmbedding(query)
-
-		var items []Page
-		err := db.NewSelect().
-			Model(&items).
-			OrderExpr("embedding <-> ?", pgvector.NewVector(utils.Float64ToFloat32(embed))).
-			Limit(1).
-			Scan(*ctx)
-		if err != nil {
-			return "", err
-		}
-
-		if len(items) == 0 {
-			return "", fmt.Errorf("no page found")
-		}
 
 		ctxSessionId, ok := (*ctx).Value(session.SessionIDKey).(string)
 		if !ok {
@@ -47,27 +34,54 @@ func GetResponseEmbeddingQuery(ctx *context.Context, db *bun.DB) func(query *str
 		}
 
 		if session.Context == "" {
+			var items []Page
+			similarityThreshold := 0.6
+			err := db.NewSelect().
+				Model(&items).
+				Where("embedding <-> ? < ?", pgvector.NewVector(utils.Float64ToFloat32(embed)), similarityThreshold).
+				OrderExpr("embedding <-> ?", pgvector.NewVector(utils.Float64ToFloat32(embed))).
+				Limit(1).
+				Scan(*ctx)
+			if err != nil {
+				return "", err
+			}
+
+			if len(items) == 0 {
+				return os.Getenv("CHATBOT_MESSAGE_NOT_FOUND"), nil
+			}
+
 			session.Context = items[0].Text
 			db.NewUpdate().
 				Model(&session).
 				Where("id = ?", ctxSessionId).
 				Exec(*ctx)
+
+			if session.PageTitle == "" {
+				session.PageTitle = items[0].Title
+				db.NewUpdate().
+					Model(&session).
+					Where("id = ?", ctxSessionId).
+					Exec(*ctx)
+			}
+
+			if session.PageUrl == "" {
+				session.PageUrl = items[0].Url
+				db.NewUpdate().
+					Model(&session).
+					Where("id = ?", ctxSessionId).
+					Exec(*ctx)
+			}
 		}
 
-		if session.PageTitle == "" {
-			session.PageTitle = items[0].Title
-			db.NewUpdate().
-				Model(&session).
-				Where("id = ?", ctxSessionId).
-				Exec(*ctx)
-		}
+		return generateResponse(ctx, db)(query, &session.Context)
+	}
+}
 
-		if session.PageUrl == "" {
-			session.PageUrl = items[0].Url
-			db.NewUpdate().
-				Model(&session).
-				Where("id = ?", ctxSessionId).
-				Exec(*ctx)
+func generateResponse(ctx *context.Context, db *bun.DB) func(query *string, systemMessage *string) (string, error) {
+	return func(query *string, systemMessage *string) (string, error) {
+		ctxSessionId, ok := (*ctx).Value(session.SessionIDKey).(string)
+		if !ok {
+			return "", fmt.Errorf("session_id not found or not a string")
 		}
 
 		_, errChatsInsert := db.NewInsert().
@@ -103,7 +117,7 @@ func GetResponseEmbeddingQuery(ctx *context.Context, db *bun.DB) func(query *str
 			}
 		}
 
-		res, err := openaiL.GenerateCompletion(ctx)(&session.Context, allMessages...)
+		res, err := openaiL.GenerateCompletion(ctx)(systemMessage, allMessages...)
 		if err != nil {
 			return "", err
 		}
@@ -116,6 +130,7 @@ func GetResponseEmbeddingQuery(ctx *context.Context, db *bun.DB) func(query *str
 				Text:      res,
 			}).
 			Exec(*ctx)
+
 		if errChatsInsert != nil {
 			return "", errChatsInsert
 		}
