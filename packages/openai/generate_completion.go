@@ -18,8 +18,8 @@ func GenerateCompletion(ctx *context.Context) func(context *string, messages ...
 
 		chatCompletion, err := Client.Chat.Completions.New(*ctx, openai.ChatCompletionNewParams{
 			Messages:    openai.F(allMessages),
-			Model:       openai.F(openai.ChatModelGPT4o),
-			Temperature: openai.Float(1),
+			Model:       openai.F(openai.ChatModelGPT4oMini),
+			Temperature: openai.Float(0.5),
 		})
 
 		if err != nil {
