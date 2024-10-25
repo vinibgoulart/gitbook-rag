@@ -131,6 +131,8 @@ func VectorizePages(ctx *context.Context, db *bun.DB) func(spaceId *string, cont
 			errPageCreate := database.InsertOrUpdate(ctx, db, &page.Page{
 				ID:        p.ID,
 				Text:      text,
+				Title:     p.Title,
+				Url:       fmt.Sprintf("%s/%s", os.Getenv("GITBOOK_URL"), p.Path),
 				SpaceId:   *spaceId,
 				ContentId: *contentPageId,
 				Embedding: pgvector.NewVector(utils.Float64ToFloat32(embed)),

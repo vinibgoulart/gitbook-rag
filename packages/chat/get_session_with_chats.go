@@ -10,6 +10,8 @@ import (
 
 type SessionWithChats struct {
 	Context   string `json:"context"`
+	PageTitle string `json:"page_title"`
+	PageUrl   string `json:"page_url"`
 	CreatedAt string `json:"created_at"`
 	Chats     []Chat `json:"chats"`
 }
@@ -39,6 +41,8 @@ func GetSessionWithChats(ctx *context.Context, db *bun.DB) (*SessionWithChats, e
 	}
 
 	return &SessionWithChats{
+		PageTitle: session.PageTitle,
+		PageUrl:   session.PageUrl,
 		Context:   session.Context,
 		CreatedAt: session.CreatedAt.String(),
 		Chats:     chats,

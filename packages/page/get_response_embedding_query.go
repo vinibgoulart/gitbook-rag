@@ -54,6 +54,22 @@ func GetResponseEmbeddingQuery(ctx *context.Context, db *bun.DB) func(query *str
 				Exec(*ctx)
 		}
 
+		if session.PageTitle == "" {
+			session.PageTitle = items[0].Title
+			db.NewUpdate().
+				Model(&session).
+				Where("id = ?", ctxSessionId).
+				Exec(*ctx)
+		}
+
+		if session.PageUrl == "" {
+			session.PageUrl = items[0].Url
+			db.NewUpdate().
+				Model(&session).
+				Where("id = ?", ctxSessionId).
+				Exec(*ctx)
+		}
+
 		_, errChatsInsert := db.NewInsert().
 			Model(&chat.Chat{
 				ID:        uuid.New().String(),

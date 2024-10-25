@@ -26,6 +26,7 @@ type GitbookSpaceContentPage struct {
 	Title       string                          `json:"title"`
 	Description string                          `json:"description"`
 	Type        string                          `json:"type"`
+	Path        string                          `json:"path"`
 	Document    GitbookSpaceContentPageDocument `json:"document"`
 }
 
