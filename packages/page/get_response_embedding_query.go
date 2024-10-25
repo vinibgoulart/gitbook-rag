@@ -106,14 +106,12 @@ func generateResponse(ctx *context.Context, db *bun.DB) func(query *string, syst
 		}
 
 		var allMessages []openai.ChatCompletionMessageParamUnion
-		if len(chats) == 0 {
-			for _, chat := range chats {
-				if chat.Agent == "user" {
-					allMessages = append(allMessages, openai.UserMessage(chat.Text))
-				}
-				if chat.Agent == "assistant" {
-					allMessages = append(allMessages, openai.AssistantMessage(chat.Text))
-				}
+		for _, chat := range chats {
+			if chat.Agent == "user" {
+				allMessages = append(allMessages, openai.UserMessage(chat.Text))
+			}
+			if chat.Agent == "assistant" {
+				allMessages = append(allMessages, openai.AssistantMessage(chat.Text))
 			}
 		}
 
