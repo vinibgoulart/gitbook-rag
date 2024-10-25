@@ -27,6 +27,11 @@ func GetResponseEmbeddingQuery(ctx *context.Context, db *bun.DB) func(query *str
 		if err != nil {
 			return "", err
 		}
+
+		if len(items) == 0 {
+			return "", fmt.Errorf("no page found")
+		}
+
 		ctxSessionId, ok := (*ctx).Value(session.SessionIDKey).(string)
 		if !ok {
 			return "", fmt.Errorf("session_id not found or not a string")
