@@ -22,6 +22,11 @@ func Init(db *bun.DB) func(context.Context, *sync.WaitGroup) {
 			panic(errScheduler)
 		}
 
+		err := gitbook.Vectorize(&ctx, db)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+
 		_, errorJob := scheduler.NewJob(
 			gocron.DurationJob(
 				1*time.Hour,
