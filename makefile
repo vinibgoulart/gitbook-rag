@@ -1,7 +1,7 @@
-SERVER_PATH = cmd/server/server.go
+WORKER = cmd/worker/worker.go
 
-server:
-	go run $(SERVER_PATH)
+worker:
+	go run $(WORKER)
 
 ai_cli:
 	go run cmd/cli/cli.go

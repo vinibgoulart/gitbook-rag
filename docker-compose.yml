@@ -31,14 +31,14 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  golang-server:
+  golang-worker:
     image: golang:1.22.2
     working_dir: /app
     depends_on:
       - postgres
     volumes:
       - ./:/app
-    command: go run cmd/server/server.go
+    command: go run cmd/worker/worker.go
     networks:
       - pgvector
     extra_hosts:

@@ -41,12 +41,12 @@ docker-compose up -d
 
 This command will start the postgresql and the pgadmin services.
 
-## Running the server
+## Running the worker
 
-To sync the data from the database to the vector index you need to run the server with the following command:
+To sync the data from the database to the vector index you need to run the worker with the following command:
 
 ```bash
-make server
+make worker
 ```
 
 With this, a request will be made to the gitbook every 1 hour to sync the data.
