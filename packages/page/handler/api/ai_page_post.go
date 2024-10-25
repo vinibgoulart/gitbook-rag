@@ -2,6 +2,7 @@ package page
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -13,6 +14,10 @@ import (
 
 type AiPrompt struct {
 	Prompt string `json:"prompt"`
+}
+
+type AiResponse struct {
+	Response string `json:"response"`
 }
 
 func AiPagePost(ctx *context.Context, db *bun.DB) func(res http.ResponseWriter, req *http.Request) {
@@ -38,6 +43,18 @@ func AiPagePost(ctx *context.Context, db *bun.DB) func(res http.ResponseWriter, 
 			return
 		}
 
-		res.Write([]byte(response))
+		res.Header().Set("Content-Type", "application/json")
+
+		aiResponse := AiResponse{
+			Response: response,
+		}
+		jsonResponse, err := json.Marshal(aiResponse)
+		if err != nil {
+			fmt.Println(err)
+			http.Error(res, "Failed to encode response", http.StatusInternalServerError)
+			return
+		}
+
+		res.Write(jsonResponse)
 	}
 }
