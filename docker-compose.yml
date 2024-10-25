@@ -28,6 +28,8 @@ services:
       - 8054:8054
     networks:
       - pgvector
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   golang-server:
     image: golang:1.22.2
@@ -39,6 +41,8 @@ services:
     command: go run cmd/server/server.go
     networks:
       - pgvector
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   pgdata:
