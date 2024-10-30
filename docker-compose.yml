@@ -1,46 +1,26 @@
 version: "3.7"
 services:
-  postgres:
-    image: pgvector/pgvector:pg14
-    container_name: postgres_container
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    ports:
-      - 5433:5432
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    expose:
-      - 5433
-    networks:
-      - pgvector
-
   golang-api:
     image: golang:1.22.2
     working_dir: /app
-    depends_on:
-      - postgres
     volumes:
       - ./:/app
     command: go run cmd/api/api.go
     ports:
       - 8054:8054
     networks:
-      - pgvector
+      - services
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   golang-worker:
     image: golang:1.22.2
     working_dir: /app
-    depends_on:
-      - postgres
     volumes:
       - ./:/app
     command: go run cmd/worker/worker.go
     networks:
-      - pgvector
+      - services
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -48,5 +28,5 @@ volumes:
   pgdata:
 
 networks:
-  pgvector:
+  services:
     driver: bridge
