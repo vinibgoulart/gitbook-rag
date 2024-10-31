@@ -36,6 +36,8 @@ func Vectorize(ctx *context.Context, db *bun.DB) error {
 				}
 			}
 		}
+	} else {
+		items = spaces.Items
 	}
 
 	for _, s := range items {
