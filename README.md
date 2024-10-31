@@ -69,8 +69,9 @@ make api
 
 ### API Endpoints
 
-| Method | Endpoint | Description                               | Parameters             |
-| ------ | -------- | ----------------------------------------- | ---------------------- |
-| POST   | /ai/page | Send a prompt to the chat bot             | { "prompt": "string" } |
-| GET    | /chat    | Get the current session and chat messages | null                   |
-| POST   | /logout  | Logout from the current session scope     | null                   |
+| Method | Endpoint           | Description                                        | Parameters             |
+| ------ | ------------------ | -------------------------------------------------- | ---------------------- |
+| POST   | /ai/page           | Send a prompt to the chat bot                      | { "prompt": "string" } |
+| POST   | /ai/{spaceId}/page | Send a prompt to the chat bot filtering by spaceId | { "prompt": "string" } |
+| GET    | /chat              | Get the current session and chat messages          | null                   |
+| POST   | /logout            | Logout from the current session scope              | null                   |

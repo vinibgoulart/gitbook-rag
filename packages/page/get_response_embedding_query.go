@@ -15,8 +15,8 @@ import (
 	"github.com/vinibgoulart/gitbook-rag/packages/utils"
 )
 
-func GetResponseEmbeddingQuery(ctx *context.Context, db *bun.DB) func(query *string) (string, error) {
-	return func(query *string) (string, error) {
+func GetResponseEmbeddingQuery(ctx *context.Context, db *bun.DB) func(query *string, spaceId *string) (string, error) {
+	return func(query *string, spaceId *string) (string, error) {
 		embed := openaiL.GetEmbedding(query)
 
 		ctxSessionId, ok := (*ctx).Value(session.SessionIDKey).(string)
@@ -36,12 +36,17 @@ func GetResponseEmbeddingQuery(ctx *context.Context, db *bun.DB) func(query *str
 		if session.Context == "" {
 			var items []Page
 			similarityThreshold := 0.6
-			err := db.NewSelect().
+			sql := db.NewSelect().
 				Model(&items).
 				Where("embedding <-> ? < ?", pgvector.NewVector(utils.Float64ToFloat32(embed)), similarityThreshold).
 				OrderExpr("embedding <-> ?", pgvector.NewVector(utils.Float64ToFloat32(embed))).
-				Limit(1).
-				Scan(*ctx)
+				Limit(1)
+
+			if *spaceId != "" {
+				sql = sql.Where("space_id = ?", *spaceId)
+			}
+
+			err := sql.Scan(*ctx)
 			if err != nil {
 				return "", err
 			}

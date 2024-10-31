@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/go-chi/chi"
 	"github.com/uptrace/bun"
 	"github.com/vinibgoulart/gitbook-rag/packages/page"
 	"github.com/vinibgoulart/gitbook-rag/packages/utils"
@@ -22,6 +23,8 @@ type AiResponse struct {
 
 func AiPagePost(ctx *context.Context, db *bun.DB) func(res http.ResponseWriter, req *http.Request) {
 	return func(res http.ResponseWriter, req *http.Request) {
+		spaceId := chi.URLParam(req, "spaceId")
+
 		var aiPrompt AiPrompt
 
 		errJsonDecode := utils.JsonDecode(res, req, &aiPrompt)
@@ -36,7 +39,7 @@ func AiPagePost(ctx *context.Context, db *bun.DB) func(res http.ResponseWriter, 
 			return
 		}
 
-		response, err := page.GetResponseEmbeddingQuery(ctx, db)(&aiPrompt.Prompt)
+		response, err := page.GetResponseEmbeddingQuery(ctx, db)(&aiPrompt.Prompt, &spaceId)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(res, "Internal Server Error", http.StatusInternalServerError)

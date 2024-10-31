@@ -38,6 +38,7 @@ func ServerInit(db *bun.DB) func(ctx context.Context, waitGroup *sync.WaitGroup)
 			httpSession.RemoveSession(&ctx, db, res)
 		})
 		router.Post("/ai/page", page.AiPagePost(&ctx, db))
+		router.Post("/ai/{spaceId}/page", page.AiPagePost(&ctx, db))
 		router.Get("/chat", chat.ChatGet(&ctx, db))
 
 		port := fmt.Sprintf(":%s", os.Getenv("PORT"))
