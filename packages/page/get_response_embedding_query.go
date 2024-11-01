@@ -46,7 +46,7 @@ func GetResponseEmbeddingQuery(ctx *context.Context, db *bun.DB) func(query *str
 			}
 
 			if len(items) == 0 {
-				return generateResponse(ctx, db)(query, nil)
+				return generateResponse(ctx, db)(query, &session.Context)
 			}
 
 			session.Context = items[0].Text
