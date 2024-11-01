@@ -44,7 +44,8 @@ func Vectorize(ctx *context.Context, db *bun.DB) error {
 		errSpaceCreate := database.InsertOrUpdate(ctx, db, &space.Space{
 			ID:    s.ID,
 			Title: s.Title,
-		}, "id", "title = EXCLUDED.title, updated_at = NOW()")
+			Url:   s.Urls.Published,
+		}, "id", "title = EXCLUDED.title, updated_at = NOW(), url = EXCLUDED.url")
 
 		if errSpaceCreate != nil {
 			fmt.Println(errSpaceCreate.Error())
@@ -75,7 +76,7 @@ func Vectorize(ctx *context.Context, db *bun.DB) error {
 
 			allIdsUpdate = append(allIdsUpdate, id)
 
-			go VectorizePages(ctx, db)(&s.ID, &id)
+			go VectorizePages(ctx, db)(&s.Urls.Published, &s.ID, &id)
 		}
 
 		var pagesNotUpdated []page.Page
@@ -97,8 +98,8 @@ func Vectorize(ctx *context.Context, db *bun.DB) error {
 	return nil
 }
 
-func VectorizePages(ctx *context.Context, db *bun.DB) func(spaceId *string, contentPageId *string) error {
-	return func(spaceId *string, contentPageId *string) error {
+func VectorizePages(ctx *context.Context, db *bun.DB) func(spaceUrl *string, spaceId *string, contentPageId *string) error {
+	return func(spaceUrl *string, spaceId *string, contentPageId *string) error {
 		p, errPageContentGet := SpacesContentPageGet(spaceId, contentPageId)
 
 		if errPageContentGet != nil {
@@ -134,11 +135,11 @@ func VectorizePages(ctx *context.Context, db *bun.DB) func(spaceId *string, cont
 				ID:        p.ID,
 				Text:      text,
 				Title:     p.Title,
-				Url:       fmt.Sprintf("%s/%s", os.Getenv("GITBOOK_URL"), p.Path),
+				Url:       fmt.Sprintf("%s%s", *spaceUrl, p.Path),
 				SpaceId:   *spaceId,
 				ContentId: *contentPageId,
 				Embedding: pgvector.NewVector(utils.Float64ToFloat32(embed)),
-			}, "id", "text = EXCLUDED.text, space_id = EXCLUDED.space_id, content_id = EXCLUDED.content_id, embedding = EXCLUDED.embedding, updated_at = NOW()")
+			}, "id", "text = EXCLUDED.text, space_id = EXCLUDED.space_id, content_id = EXCLUDED.content_id, embedding = EXCLUDED.embedding, updated_at = NOW(), url = EXCLUDED.url, title = EXCLUDED.title")
 
 			if errPageCreate != nil {
 				fmt.Println(errPageCreate.Error())
