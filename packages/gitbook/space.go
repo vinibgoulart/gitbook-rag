@@ -12,8 +12,13 @@ type Space struct {
 }
 
 type SpaceItems struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
+	ID    string    `json:"id"`
+	Title string    `json:"title"`
+	Urls  SpaceUrls `json:"urls"`
+}
+
+type SpaceUrls struct {
+	Published string `json:"published"`
 }
 
 func SpacesGet() (*Space, error) {
