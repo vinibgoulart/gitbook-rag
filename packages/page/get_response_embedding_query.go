@@ -3,6 +3,7 @@ package page
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/google/uuid"
 	"github.com/openai/openai-go"
@@ -51,7 +52,7 @@ func GetResponseEmbeddingQuery(ctx *context.Context, db *bun.DB) func(query *str
 			}
 
 			if len(items) == 0 {
-				return generateResponse(ctx, db)(query, &session.Context)
+				return os.Getenv("CHATBOT_DEFAULT_NOT_FOUND_MESSAGE"), nil
 			}
 
 			session.Context = items[0].Text
