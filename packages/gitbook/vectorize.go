@@ -111,23 +111,27 @@ func VectorizePages(ctx *context.Context, db *bun.DB) func(spaceUrl *string, spa
 			return nil
 		}
 
-		var text string
+		var introduction string
 		if p.Description != "" {
-			text = p.Title + ". " + p.Description
-		} else {
-			text = p.Title + ". "
+			introduction = p.Title + ". " + p.Description
 		}
 
-		var allTexts []string
+		var allTextsArray []string
 		for _, node := range p.Document.Nodes {
-			allTexts = append(allTexts, utils.RecursiveCatchFields("text", node)...)
+			allTextsArray = append(allTextsArray, utils.RecursiveCatchFields("text", node)...)
 		}
 
-		if len(allTexts) < 1 {
+		if len(allTextsArray) < 1 {
 			return nil
 		}
 
-		text = text + " " + strings.Join(allTexts, " ")
+		content := strings.Join(allTextsArray, " ")
+
+		if content == "" {
+			return nil
+		}
+
+		text := introduction + ". " + content
 
 		if text != "" {
 			embed := openai.GetEmbedding(&text)
